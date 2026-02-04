@@ -10,10 +10,6 @@ RUN apt-get update && \
 RUN mkdir -p /comfyui/models/checkpoints \
     && mkdir -p /comfyui/models/vae
 
-# Modelo 1: DreamShaper 8
-RUN curl -L -o /comfyui/models/checkpoints/dreamshaper_8.safetensors \
-    https://huggingface.co/Lykon/DreamShaper/resolve/main/DreamShaper_8_pruned.safetensors
-
 # Modelo 2: Juggernaut XL Ragnarok (usando mirror con nombre exacto)
 RUN curl -L -o /comfyui/models/checkpoints/juggernautXL_ragnarokBy.safetensors \
     https://huggingface.co/xxiaogui/hongchao/resolve/main/juggernautXL_ragnarokBy.safetensors
