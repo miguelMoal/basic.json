@@ -1,19 +1,46 @@
 # clean base image containing only comfyui, comfy-cli and comfyui-manager
 FROM runpod/worker-comfyui:5.5.1-base
 
-# Instalar curl
+# Instalar herramientas de descarga (curl + wget por seguridad)
 RUN apt-get update && \
-    apt-get install -y --no-install-recommends curl && \
+    apt-get install -y --no-install-recommends curl wget && \
     rm -rf /var/lib/apt/lists/*
 
-# Crear carpetas
+# Crear carpetas necesarias
 RUN mkdir -p /comfyui/models/checkpoints \
     && mkdir -p /comfyui/models/vae
 
-# Modelo 2: Juggernaut XL Ragnarok (usando mirror con nombre exacto)
+# VAE recomendado para SDXL / Pony (mejora colores y detalles)
+RUN curl -L -o /comfyui/models/vae/sdxl_vae.safetensors \
+    https://huggingface.co/madebyollin/sdxl-vae-fp16-fix/resolve/main/sdxl_vae.safetensors
+
+# Modelo 1: Juggernaut XL Ragnarok (cine / realismo dramático)
 RUN curl -L -o /comfyui/models/checkpoints/juggernautXL_ragnarokBy.safetensors \
+    https://huggingface.co/xxiaogui/hongchao/resolve/main/juggernautXL_ragnarokBy.safetensors || \
+    wget -O /comfyui/models/checkpoints/juggernautXL_ragnarokBy.safetensors \
     https://huggingface.co/xxiaogui/hongchao/resolve/main/juggernautXL_ragnarokBy.safetensors
 
-# Opcional: VAE para SDXL (descomenta si lo necesitas)
-# RUN curl -L -o /comfyui/models/vae/sdxl_vae.safetensors \
-#     https://huggingface.co/madebyollin/sdxl-vae-fp16-fix/resolve/main/sdxl_vae.safetensors
+# Modelo 2: Pony Diffusion V6 XL (anime, semi-realismo, versatilidad Pony)
+# Usa un mirror estable con nombre claro
+RUN curl -L -o /comfyui/models/checkpoints/ponyDiffusionV6XL.safetensors \
+    https://huggingface.co/Polenov2024/Pony-Diffusion-V6-XL/resolve/main/model.safetensors || \
+    wget -O /comfyui/models/checkpoints/ponyDiffusionV6XL.safetensors \
+    https://huggingface.co/Polenov2024/Pony-Diffusion-V6-XL/resolve/main/model.safetensors
+
+# Modelo 3: CyberRealistic Pony (semi-realismo + anatomía detallada, Pony flavor)
+RUN curl -L -o /comfyui/models/checkpoints/cyberrealistic_pony.safetensors \
+    https://huggingface.co/cyberdelia/CyberRealisticPony/resolve/main/cyberrealisticPony_v160.safetensors || \
+    wget -O /comfyui/models/checkpoints/cyberrealistic_pony.safetensors \
+    https://huggingface.co/cyberdelia/CyberRealisticPony/resolve/main/cyberrealisticPony_v160.safetensors
+
+# Modelo 4: DreamShaper XL (artístico, ilustración, fantasía, versátil)
+RUN curl -L -o /comfyui/models/checkpoints/dreamshaper_xl.safetensors \
+    https://huggingface.co/Lykon/dreamshaper-xl-v2-turbo/resolve/main/DreamShaperXL_Turbo_v2.safetensors || \
+    wget -O /comfyui/models/checkpoints/dreamshaper_xl.safetensors \
+    https://huggingface.co/Lykon/dreamshaper-xl-v2-turbo/resolve/main/DreamShaperXL_Turbo_v2.safetensors
+
+# Chequeo final (aparece en logs del build para verificar)
+RUN echo "Modelos descargados en checkpoints:" && \
+    ls -lh /comfyui/models/checkpoints/ && \
+    echo "VAE descargado:" && \
+    ls -lh /comfyui/models/vae/
